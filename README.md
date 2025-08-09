@@ -1,6 +1,6 @@
 # Lua Inline
 
-A very simple module that allows you to inline C code in Lua
+A very simple small module that allows you to inline C code in Lua
 
 ## Deps
 
