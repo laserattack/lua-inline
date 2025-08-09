@@ -78,12 +78,20 @@ local function inline(c_code)
         local protos = extract_protos(proto_path)
 
         os.execute(shared_lib_compile_cmd)
+
         ffi.cdef(protos)
         local lib = ffi.load(lib_path)
 
         local func_pattern = "([%a_][%w_]+)%s*%("
         for name in protos:gmatch(func_pattern) do
-            _G[name] = lib[name]
+            if not pcall(function ()
+                _G[name] = lib[name]
+            end) then
+                error(
+                    "function '"
+                    ..name
+                    .."' is not in the library. mb it's static/inline/deadcode?")
+            end
         end
     end)
 
