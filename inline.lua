@@ -74,7 +74,7 @@ local function inline(c_code)
     os.remove(lib_path)
 
     if not success then
-        error(result)
+        error("Check your C code!!\n"..result)
     end
 end
 
