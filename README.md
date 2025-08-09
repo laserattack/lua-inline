@@ -9,8 +9,6 @@ LuaJIT, GCC
 ## Example
 
 ```lua
-os.execute("stty -echoctl")
-
 local inline = require("inline")
 
 inline[[
