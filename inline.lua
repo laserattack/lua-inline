@@ -17,27 +17,6 @@ if not check_gcc() then
 end
 --
 
--- Подготовка имен файлов и используемых команд
-local c_path = "./code.c"
-local proto_path = "./protos.txt"
-
-local lib_path
-local extract_protos_cmd
-
-if ffi.os == "Windows" then
-    lib_path = "./shared.dll"
-    extract_protos_cmd =
-        "gcc -aux-info "..proto_path.." "..c_path.." 2>NUL"
-else
-    lib_path = "./shared.so"
-    extract_protos_cmd =
-        "gcc -aux-info "..proto_path.." "..c_path.." 2>/dev/null"
-end
-
-local shared_lib_compile_cmd =
-    "gcc -shared -fPIC -o "..lib_path.." "..c_path
---
-
 local function assert_strings(...)
     for _, v in ipairs({...}) do
        assert(type(v) == "string")
@@ -66,8 +45,33 @@ local function filter_protos(path)
     return table.concat(protos, "")
 end
 
+local counter = 0
 local function inline(c_code)
     assert_strings(c_code)
+
+    counter = counter + 1
+    local prefix = "./"..counter.."_"
+
+    --
+    local c_path = prefix.."code.c"
+    local proto_path = prefix.."protos.txt"
+
+    local lib_path
+    local extract_protos_cmd
+
+    if ffi.os == "Windows" then
+        lib_path = prefix.."shared.dll"
+        extract_protos_cmd =
+            "gcc -aux-info "..proto_path.." "..c_path.." 2>NUL"
+    else
+        lib_path = prefix.."shared.so"
+        extract_protos_cmd =
+            "gcc -aux-info "..proto_path.." "..c_path.." 2>/dev/null"
+    end
+
+    local shared_lib_compile_cmd =
+        "gcc -shared -fPIC -o "..lib_path.." "..c_path
+    --
 
     local success, result = pcall(function ()
         -- Запись кода в файл
