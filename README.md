@@ -37,7 +37,7 @@ void print_message(const char* msg) {
 print(add_numbers(1, 2)) --> 3
 print_message("hello from C!") --> Message: hello from C!
 
-setup_signal_handler() -- Установка обработчика
+setup_signal_handler()
 print("press Ctrl+C to exit")
 while true do end
 ```
