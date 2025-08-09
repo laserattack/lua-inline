@@ -51,7 +51,7 @@ local function write_file(path, content)
     assert(file:close())
 end
 
-local function extract_protos(path)
+local function filter_protos(path)
     assert_strings(path)
     local protos = {}
     local file = assert(
@@ -75,7 +75,7 @@ local function inline(c_code)
 
         -- Получение всех прототипов функций из кода)
         os.execute(extract_protos_cmd)
-        local protos = extract_protos(proto_path)
+        local protos = filter_protos(proto_path)
 
         os.execute(shared_lib_compile_cmd)
 
