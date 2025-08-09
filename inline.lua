@@ -1,18 +1,35 @@
-local ffi = require("ffi")
+-- Check deps
+local ok, ffi = pcall(require, "ffi")
+if not ok then
+    error("This module requires LuaJIT with FFI support")
+end
+
+local function check_gcc()
+    local check_cmd =
+        ffi.os == "Windows"
+        and "gcc --version >NUL 2>&1"
+        or "gcc --version >/dev/null 2>&1"
+    return os.execute(check_cmd) == 0
+end
+
+if not check_gcc() then
+    error("GCC compiler is required but not found in the system")
+end
+--
 
 -- Подготовка имен файлов и используемых команд
-local c_path = "./temp.c"
-local proto_path = "./temp.txt"
+local c_path = "./code.c"
+local proto_path = "./protos.txt"
 
 local lib_path
 local extract_protos_cmd
 
 if ffi.os == "Windows" then
-    lib_path = "./temp.dll"
+    lib_path = "./shared.dll"
     extract_protos_cmd =
         "gcc -aux-info "..proto_path.." "..c_path.." 2>NUL"
 else
-    lib_path = "./temp.so"
+    lib_path = "./shared.so"
     extract_protos_cmd =
         "gcc -aux-info "..proto_path.." "..c_path.." 2>/dev/null"
 end
@@ -37,7 +54,9 @@ end
 local function extract_protos(path)
     assert_strings(path)
     local protos = {}
-    local file = assert(io.open(path, "r"))
+    local file = assert(
+        io.open(path, "r"),
+        "check C code (compile error)")
     for l in file:lines() do
         if not l:find("%.h") then
             protos[#protos+1] = l:gsub("/%*.-%*/", "")
@@ -54,12 +73,11 @@ local function inline(c_code)
         -- Запись кода в файл
         write_file(c_path, c_code)
 
-        -- Получение всех прототипов функций из кода
-        assert(os.execute(extract_protos_cmd))
+        -- Получение всех прототипов функций из кода)
+        os.execute(extract_protos_cmd)
         local protos = extract_protos(proto_path)
 
-        assert(os.execute(shared_lib_compile_cmd))
-
+        os.execute(shared_lib_compile_cmd)
         ffi.cdef(protos)
         local lib = ffi.load(lib_path)
 
@@ -74,7 +92,7 @@ local function inline(c_code)
     os.remove(lib_path)
 
     if not success then
-        error("Check your C code!!\n"..result)
+        error(result)
     end
 end
 
