@@ -1,4 +1,4 @@
-# Lua Inline
+# LuaJIT Inline
 
 A very simple small module that allows you to inline C code in LuaJIT code
 
