@@ -90,7 +90,8 @@ local function inline(c_code)
                 error(
                     "function '"
                     ..name
-                    .."' is not in the library. mb it's static/inline/deadcode?")
+                    .."' is not in the library. "..
+                    "mb it's static/inline/deadcode?")
             end
         end
     end)
