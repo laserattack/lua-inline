@@ -1,4 +1,4 @@
--- Check deps
+-- Проверка зависимостей
 local ok, ffi = pcall(require, "ffi")
 if not ok then
     error("This module requires LuaJIT with FFI support")
